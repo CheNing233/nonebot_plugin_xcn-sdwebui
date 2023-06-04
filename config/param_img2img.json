@@ -1,0 +1,22 @@
+{
+    "prompt": "masterpiece,best quality,extremely detailed 8K wallpaper,highres,incredibly_absurdresextremely detailed,ultra detailed,finely detail,amazing,",
+    "steps": 30,
+    "seed": -1,
+    "sampler_name": "DPM++ 2M Karras",
+    "cfg_scale": 10.0,
+    "width": 1024,
+    "height": 1024,
+    "negative_prompt": "mutated hands,too many fingers,fused fingers,bad anatomy,malformed limbs,extra limbs,missing legs,deformed legs,extra legs,more than 2 knee,missing toes,bad proportions,deformed,mutation,morbid,duplicate,mutilated,(worst quality:1.4), (low quality:1.4), (monochrome:1.1), easynegative, bad-artist-anime, bad-image-v2-39000, bad_prompt_version2, bad_quality, ng_deepnegative_v1_75t, verybadimagenegative_v1.1-6400, vile_prompt3, bad-hands-5,",
+    "enable_hr": false,
+    "denoising_strength": 0.58,
+    "n_iter": 1,
+    "hr_scale": 2.0,
+    "hr_upscaler": "Latent",
+    "hr_second_pass_steps": 30,
+    "override_settings": {
+        "sd_model_checkpoint": "PileDream",
+        "sd_vae": "ClearVAE_NansLess1.safetensors",
+        "CLIP_stop_at_last_layers": 2,
+        "eta_noise_seed_delta": 0
+    }
+}
