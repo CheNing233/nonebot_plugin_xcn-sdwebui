@@ -141,3 +141,10 @@ patterns_dict = {
 2. 在`pyproject.toml`或其他地方配置加载该插件
 3. 修改`config/config_webui.json`中的`servers`字段，将你的SDWebUI填进去
 4. 启动后使用`#sd`测试是否正常连接到所有SDWebUI
+
+## Problems and Defects
+
+1. 仅适配了QQ与飞书，Telegram以后再行适配
+2. 炸炉的时候有概率把队列监听线程一并炸了，重载插件即可（~~亿会修复~~
+3. 飞书需要自己注册并开放各种东西，有可能还要内网穿透，详见飞书文档以及nonebot2的飞书适配器文档
+4. 文生图时建议在Webui网页里把`表格`相关的选项全部关了，否则上传网格图片可能因图片过大上传失败
