@@ -6,39 +6,30 @@
 
 ## Feature
 
-### FullPlatform
-
-第一期工程：
+### 已实现功能：
 
 - [x] 使用简单FIFO队列进行负载均衡
 - [x] `#sd`，查看当前所有服务器状态
 - [x] `#sddraw`，接魔法进行画图
 - [x] `#sdtxt`，修改文生图配置
 - [x] `#sdimg`，修改图生图配置
+- [x] `#sdskip -all`，停止所有服务器运行
+- [x] `#sdlst -model|vae|hires|extra|sampler|embed|lora`，获取上述支持的列表
 
-第二期工程：
+`#sddraw`：返图现在仅适配QQ和飞书，回复图片只支持QQ
 
+`#sddraw`：飞书额外支持卡片
+
+### 待实现功能：
+
+- [ ] `#sdextra`，图片放大
 - [ ] `#sdext`，修改图片放大配置
 - [ ] `#sdinf`，获取图片参数，`#sdinf -tagger`，调用tagger插件
-- [ ] `#sdskip`或`#sdskip -all`，跳过
 - [ ] `#sdfrev`，重载模型进行显存释放
-- [ ] `#sdlora` ，获取Lora列表
-- [ ] `#sdmodel` ，获取Models列表
-- [ ] `#sdvae` ，获取VAE列表
-- [ ] `#sdhrupscaler` ，获取Hires Upscaler列表
-- [ ] `#sdexupscaler` ，获取Extra Upscaler列表
-
-### only-QQ
-
-- [x] `#sddraw`，回复图片可以进行图生图
-
-### only-Feishu
-
-- [x] `#sddraw`，完成画图有卡片显示参数
 
 ### Command Params
 
-`#sddraw`、`sdtxt`、`#sdimg`、`#sdext`命令可接的参数，用于修改文生图或图生图等操作的参数
+`#sddraw`、`#sdtxt`、`#sdimg`、`#sdext`命令可接的参数，用于修改文生图或图生图等操作的参数
 
 #### Example
 
@@ -138,13 +129,13 @@ patterns_dict = {
 ## Usage
 
 1. 使用`git clone`克隆当前项目，并放到你的nonebot2机器人的`src/plugins`处
-2. 在`pyproject.toml`或其他地方配置加载该插件
-3. 修改`config/config_webui.json`中的`servers`字段，将你的SDWebUI填进去
-4. 启动后使用`#sd`测试是否正常连接到所有SDWebUI
+2. 在`env.*`中写好飞书的配置，仅对第一个飞书账号生效（~~在写了在写了~~
+3. 在`pyproject.toml`或其他地方配置加载该插件
+4. 修改`config/config_webui.json`中的`servers`字段，将你的SDWebUI填进去
+5. 启动后使用`#sd`测试是否正常连接到所有SDWebUI
 
 ## Problems and Defects
 
 1. 仅适配了QQ与飞书，Telegram以后再行适配
-2. 炸炉的时候有概率把队列监听线程一并炸了，重载插件即可（~~亿会修复~~
-3. 飞书需要自己注册并开放各种东西，有可能还要内网穿透，详见飞书文档以及nonebot2的飞书适配器文档
-4. 文生图时建议在Webui网页里把`表格`相关的选项全部关了，否则上传网格图片可能因图片过大上传失败
+2. 飞书需要自己注册并开放各种东西，有可能还要内网穿透，详见飞书文档以及nonebot2的飞书适配器文档
+3. 文生图时建议在Webui网页里把`表格`相关的选项全部关了，否则上传网格图片可能因图片过大上传失败

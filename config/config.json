@@ -1,5 +1,15 @@
 {
     "enable": true,
     "enable_groups": [],
-    "enable_friends": []
+    "enable_friends": [],
+    "servers": [
+        {
+            "name": "LocalHost",
+            "type": "SDWebUI",
+            "host": "127.0.0.1",
+            "port": 7860,
+            "avalible": false
+        }
+    ],
+    "r18": true
 }

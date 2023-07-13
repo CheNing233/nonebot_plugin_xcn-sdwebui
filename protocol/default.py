@@ -23,13 +23,11 @@ from ..webui.webui_api import WebUI_API
 class Default_Protocol:
 
     @staticmethod
-    async def send_str(bot: Bot, event: Event, *args):
-        for string in args:
-            if isinstance(string, str):
-                await bot.send(event, string)
-
-    @staticmethod
     async def send_img(bot: Bot, event: Event, *args):
         
         ...
         
+    @staticmethod
+    async def get_img_reply(bot: Bot, event: Event, *args):
+
+        ...

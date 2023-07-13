@@ -1,9 +1,11 @@
+import nonebot
+
 from nonebot.plugin import PluginMetadata
 
 from pathlib import Path
 
-from .route import Protocol_Router
-from .config import Plugin_Config, WebUI_Config
+from .process import Message_Processer
+from .config import Plugin_Config
 
 from .webui.webui_manager import WebUI_Manager
 
@@ -15,16 +17,13 @@ __plugin_meta__ = PluginMetadata(
 __all__ = ["XCN-WEBUI-PLUGIN", "__plugin_meta__"]
 
 # 载入配置项
-config_path = Path(__file__).parent.resolve() / "config"
+global_cfg = nonebot.get_driver().config
 plugin_cfg = Plugin_Config.parse_file(
-    path=str(config_path / "config.json")
-)
-webui_cfg = WebUI_Config.parse_file(
-    path=str(config_path / "config_webui.json")
+    path=str(Path(__file__).parent.resolve() / "config" / "config.json")
 )
 
 # 创建webui控制器
-webui_manager = WebUI_Manager(webui_cfg)
+webui_manager = WebUI_Manager(global_cfg, plugin_cfg)
 
-# 创建协议路由器
-router = Protocol_Router(webui_manager)
+# 创建消息处理器
+message_processer = Message_Processer(webui_manager)
