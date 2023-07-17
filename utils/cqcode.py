@@ -1,10 +1,8 @@
 from typing import Any, Union
-from time import time
 import json
 
 
-class CQCodeProcess():
-
+class CQCodeProcess:
     @staticmethod
     def strToCqCode(message: str) -> list[str]:
         """
@@ -73,12 +71,7 @@ class CQCodeProcess():
         code_str = code_str.lstrip("[CQ:").rsplit("]")[0]
         code_list = code_str.split(",")
 
-        cq_code: dict[str, Any] = {
-            "type": code_list[0],
-            "data": {
-
-            }
-        }
+        cq_code: dict[str, Any] = {"type": code_list[0], "data": {}}
 
         if len(code_list) == 1:
             return cq_code
@@ -91,7 +84,8 @@ class CQCodeProcess():
 
         if cq_code["type"] == "json":
             cq_code["data"]["data"] = CQCodeProcess.cqJsonStrToDict(
-                cq_code["data"]["data"])
+                cq_code["data"]["data"]
+            )
 
         return cq_code
 
@@ -110,8 +104,7 @@ class CQCodeProcess():
         """
         转换字典为 cqCode 中的 json 字符串
         """
-        cq_json_str = json.dumps(
-            dict, separators=(',', ':'), ensure_ascii=False)
+        cq_json_str = json.dumps(dict, separators=(",", ":"), ensure_ascii=False)
         cq_json_str = cq_json_str.replace("&", "&amp;")
         cq_json_str = cq_json_str.replace(",", "&#44;")
         cq_json_str = cq_json_str.replace("[", "&#91;")

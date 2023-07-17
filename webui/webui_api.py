@@ -1,16 +1,14 @@
 import json
-import io
-import base64
+import re
 import requests
-
-from PIL import Image
-from pathlib import Path
-
 from dataclasses import dataclass
 from enum import Enum
 
+from nonebot.log import logger
+
 from ..utils.param import ParameterOperation
 from ..utils.text import TextOptimization
+from ..utils.msg import UniversalMessageBuilder
 
 
 class WebUI_API:
@@ -58,14 +56,15 @@ class WebUI_API:
     @staticmethod
     def _utils_to_api_result(response):
         if response.status_code != 200:
+            logger.error(f"API RESULT {response.status_code} {response.text}")
             raise RuntimeError(response.status_code, response.text)
 
         r = response.json()
         images = []
         if "images" in r.keys():
-            images = [Image.open(io.BytesIO(base64.b64decode(i))) for i in r["images"]]
+            images = r["images"]
         elif "image" in r.keys():
-            images = [Image.open(io.BytesIO(base64.b64decode(r["image"])))]
+            images = r["image"]
 
         info = ""
         if "info" in r.keys():
@@ -78,13 +77,9 @@ class WebUI_API:
         elif "caption" in r.keys():
             info = r["caption"]
 
-        parameters = ""
+        parameters = "No parameters MIAO~"
         if "parameters" in r.keys():
             parameters = r["parameters"]
-
-        for i in range(len(images)):
-            # 加入图片参数
-            images[i].info["parameters"] = str(info["infotexts"][i])
 
         return WebUI_API.WebUIApiResult(images, parameters, info)
 
@@ -118,6 +113,22 @@ class WebUI_API:
             return res
         else:
             return res.json()
+
+    @staticmethod
+    def ping(host, port, *args):
+        try:
+            response = requests.get(
+                "http://" + host + ":" + str(port) + "/internal/ping", timeout=1000
+            )
+        except:
+            response = None
+
+        if response and response.status_code == 200:
+            logger.debug("PING %s:%d %s" % (host, port, "OK"))
+            return True
+        else:
+            logger.debug("PING %s:%d %s" % (host, port, "UNVALIABLE"))
+            return False
 
     @staticmethod
     def get_vram(host, port, *args):
@@ -331,5 +342,73 @@ class WebUI_API:
         return WebUI_API._utils_to_api_result(response)
 
     @staticmethod
+    def extra_batch_image(host, port, *args):
+        params, images = args
+
+        payload = ParameterOperation.extra_params_process(params, images)
+
+        response = WebUI_API._utils_requests(
+            host, port, "/sdapi/v1/extra-batch-images", payload, use_unprocess=True
+        )
+
+        return WebUI_API._utils_to_api_result(response)
+
+    @staticmethod
     def skip(host, port, *args):
         WebUI_API._utils_requests(host, port, "/sdapi/v1/skip", {})
+
+    @staticmethod
+    def reload_checkpoints(host, port, *args):
+        WebUI_API._utils_requests(host, port, "/sdapi/v1/unload-checkpoint", {})
+        WebUI_API._utils_requests(host, port, "/sdapi/v1/reload-checkpoint", {})
+        return None
+
+    @staticmethod
+    def png_info(host, port, *args) -> str:
+        payload = {"image": args[0][0]}
+
+        response = WebUI_API._utils_requests(
+            host, port, "/sdapi/v1/png-info", payload, use_unprocess=False
+        )
+
+        return response["info"]
+
+    @staticmethod
+    def tagger_image(host, port, *args):
+        params, images = args
+
+        payload = ParameterOperation.tagger_params_process(params, images)
+
+        response = WebUI_API._utils_requests(
+            host, port, "/tagger/v1/interrogate", payload, use_unprocess=False
+        )
+
+        WebUI_API.tagger_unload_models(host, port, *args)
+
+        return response["caption"], UniversalMessageBuilder.tagger_info
+
+    @staticmethod
+    def tagger_get_models(host, port, *args) -> list:
+        response = WebUI_API._utils_requests(
+            host,
+            port,
+            "/tagger/v1/interrogators",
+            {},
+            use_get=True,
+            use_unprocess=False,
+        )
+
+        return response["models"]
+
+    @staticmethod
+    def tagger_unload_models(host, port, *args):
+        try:
+            response = WebUI_API._utils_requests(
+                host, port, "/tagger/v1/unload-interrogators", {}, use_unprocess=False
+            )
+
+            count = re.findall(r"\d+", str(response.content))
+        except:
+            count = 0
+
+        return count

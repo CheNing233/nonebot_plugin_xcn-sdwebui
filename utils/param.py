@@ -4,33 +4,28 @@ import copy
 
 from pathlib import Path
 
-from .img import PILImageOperation
 from .text import TextOptimization
 
 
 class ParameterOperation:
-
     @staticmethod
     def get_cfg_path(filename: str = None):
         if filename:
-            return str(Path(__file__).parent.parent.resolve() / 'config' / filename)
+            return str(Path(__file__).parent.parent.resolve() / "config" / filename)
         else:
-            return str(Path(__file__).parent.parent.resolve() / 'config')
+            return str(Path(__file__).parent.parent.resolve() / "config")
 
     class txtimg_matcher:
         patterns_dict = {
             "prompt": [r"(.*?)($|\n)"],
             "negative_prompt": [r"Negative prompt:(.*?)($|\n)", r"-ngt(.*?)($|\n)"],
-
             "steps": [r"Steps:(.*?)(,|$|\n)", r"-steps(.*?)(,|$|\n)"],
             "sampler_name": [r"Sampler:(.*?)(,|$|\n)", r"-sampler(.*?)(,|$|\n)"],
             "cfg_scale": [r"CFG scale:(.*?)(,|$|\n)", r"-cfg(.*?)(,|$|\n)"],
             "seed": [r"Seed:(.*?)(,|$|\n)", r"-seed(.*?)(,|$|\n)"],
             "width": [r"Size:(.*?)(,|$|\n)", r"-size(.*?)(,|$|\n)"],
             "height": [r"Size:(.*?)(,|$|\n)", r"-size(.*?)(,|$|\n)"],
-
             "n_iter": [r"-cnt(.*?)(,|$|\n)"],
-
             "enable_hr": [r"-hr(.*?)(,|$|\n)"],
             "denoising_strength": [
                 r"Denoising strength:(.*?)(,|$|\n)",
@@ -42,7 +37,6 @@ class ParameterOperation:
                 r"Hires steps:(.*?)(,|$|\n)",
                 r"-hrsteps(.*?)(,|$|\n)",
             ],
-
             "sd_model_checkpoint": [r"Model:(.*?)(,|$|\n)", r"-model(.*?)(,|$|\n)"],
             "sd_vae": [r"-vae(.*?)(,|$|\n)"],
             "CLIP_stop_at_last_layers": [
@@ -90,7 +84,7 @@ class ParameterOperation:
             "extras_upscaler_2_visibility": [r"-upscaler2w(.*?)(,|$|\n)"],
         }
 
-        params = {}
+        base_params = {}
 
         # 匹配
 
@@ -104,6 +98,16 @@ class ParameterOperation:
             "extras_upscaler_2_visibility",
         ]
 
+    class tagger_matcher:
+        patterns_dict = {
+            "model": [r"-model(.*?)(,|$|\n)"],
+            "threshold": [r"-threshold(.*?)(,|$|\n)"],
+        }
+
+        base_params = {}
+
+        float_group = ["threshold"]
+
     @staticmethod
     def magic_trans_to_params(
         text_o: str,
@@ -112,7 +116,7 @@ class ParameterOperation:
         int_group_o: list = [],
         float_group_o: list = [],
         bool_group_o: list = [],
-        override_settings_group_o: list = []
+        override_settings_group_o: list = [],
     ) -> dict:
         # 深复制
         text: str = copy.deepcopy(text_o)
@@ -121,8 +125,7 @@ class ParameterOperation:
         int_group: list = copy.deepcopy(int_group_o)
         float_group: list = copy.deepcopy(float_group_o)
         bool_group: list = copy.deepcopy(bool_group_o)
-        override_settings_group: list = copy.deepcopy(
-            override_settings_group_o)
+        override_settings_group: list = copy.deepcopy(override_settings_group_o)
 
         # 预处理
         text = text.replace("\n", "")
@@ -133,8 +136,7 @@ class ParameterOperation:
             else:
                 for pattern in patterns:
                     try:
-                        item_proc1 = re.search(
-                            pattern=pattern, string=text).group()
+                        item_proc1 = re.search(pattern=pattern, string=text).group()
                         text = text.replace(item_proc1, "\n" + item_proc1)
                     except:
                         continue
@@ -143,8 +145,7 @@ class ParameterOperation:
             for pattern in patterns:
                 try:
                     item_proc1 = (
-                        re.search(pattern=pattern, string=text).group(
-                            1).strip()
+                        re.search(pattern=pattern, string=text).group(1).strip()
                     )
                     if not bool(item_proc1):
                         continue
@@ -191,174 +192,239 @@ class ParameterOperation:
 
     @staticmethod
     def txt2img_params_process(user_params: dict):
-
-        with open(ParameterOperation.get_cfg_path('param_txt2img.json'), "r") as file:
+        with open(ParameterOperation.get_cfg_path("param_txt2img.json"), "r") as file:
             preset_params: dict = json.load(file)
 
         final_params = {
-            "enable_hr": preset_params.get('enable_hr', False),
-            "hr_scale": preset_params.get('hr_scale', 2),
-            "hr_upscaler": preset_params.get('hr_upscaler', 'Latent'),
-            "hr_second_pass_steps": preset_params.get('hr_second_pass_steps', 0),
-            "hr_resize_x": preset_params.get('hr_resize_x', 0),
-            "hr_resize_y": preset_params.get('hr_resize_y', 0),
-            "denoising_strength": preset_params.get('denoising_strength', 0.7),
-            "firstphase_width": preset_params.get('firstphase_width', 0),
-            "firstphase_height": preset_params.get('firstphase_height', 0),
-            "prompt": preset_params.get('prompt', ''),
-            "styles": preset_params.get('styles', []),
-            "seed": preset_params.get('seed', -1),
-            "subseed": preset_params.get('subseed', -1),
-            "subseed_strength": preset_params.get('subseed_strength', 0.0),
-            "seed_resize_from_h": preset_params.get('seed_resize_from_h', 0),
-            "seed_resize_from_w": preset_params.get('seed_resize_from_w', 0),
-            "batch_size": preset_params.get('batch_size', 1),
-            "n_iter": preset_params.get('n_iter', 1),
-            "steps": preset_params.get('steps', 20),
-            "cfg_scale": preset_params.get('cfg_scale', 7.0),
-            "width": preset_params.get('width', 512),
-            "height": preset_params.get('height', 512),
-            "restore_faces": preset_params.get('restore_faces', False),
-            "tiling": preset_params.get('tiling', False),
-            "do_not_save_samples": preset_params.get('do_not_save_samples', False),
-            "do_not_save_grid": preset_params.get('do_not_save_grid', True),
-            "negative_prompt": preset_params.get('negative_prompt', ''),
-            "eta": preset_params.get('eta', 1.0),
-            "s_churn": preset_params.get('s_churn', 0),
-            "s_tmax": preset_params.get('s_tmax', 0),
-            "s_tmin": preset_params.get('s_tmin', 0),
-            "s_noise": preset_params.get('s_noise', 1),
-            "override_settings": preset_params.get('override_settings', {}),
+            "enable_hr": preset_params.get("enable_hr", False),
+            "hr_scale": preset_params.get("hr_scale", 2),
+            "hr_upscaler": preset_params.get("hr_upscaler", "Latent"),
+            "hr_second_pass_steps": preset_params.get("hr_second_pass_steps", 0),
+            "hr_resize_x": preset_params.get("hr_resize_x", 0),
+            "hr_resize_y": preset_params.get("hr_resize_y", 0),
+            "denoising_strength": preset_params.get("denoising_strength", 0.7),
+            "firstphase_width": preset_params.get("firstphase_width", 0),
+            "firstphase_height": preset_params.get("firstphase_height", 0),
+            "prompt": preset_params.get("prompt", ""),
+            "styles": preset_params.get("styles", []),
+            "seed": preset_params.get("seed", -1),
+            "subseed": preset_params.get("subseed", -1),
+            "subseed_strength": preset_params.get("subseed_strength", 0.0),
+            "seed_resize_from_h": preset_params.get("seed_resize_from_h", 0),
+            "seed_resize_from_w": preset_params.get("seed_resize_from_w", 0),
+            "batch_size": preset_params.get("batch_size", 1),
+            "n_iter": preset_params.get("n_iter", 1),
+            "steps": preset_params.get("steps", 20),
+            "cfg_scale": preset_params.get("cfg_scale", 7.0),
+            "width": preset_params.get("width", 512),
+            "height": preset_params.get("height", 512),
+            "restore_faces": preset_params.get("restore_faces", False),
+            "tiling": preset_params.get("tiling", False),
+            "do_not_save_samples": preset_params.get("do_not_save_samples", False),
+            "do_not_save_grid": preset_params.get("do_not_save_grid", True),
+            "negative_prompt": preset_params.get("negative_prompt", ""),
+            "eta": preset_params.get("eta", 1.0),
+            "s_churn": preset_params.get("s_churn", 0),
+            "s_tmax": preset_params.get("s_tmax", 0),
+            "s_tmin": preset_params.get("s_tmin", 0),
+            "s_noise": preset_params.get("s_noise", 1),
+            "override_settings": preset_params.get("override_settings", {}),
             "override_settings_restore_afterwards": preset_params.get(
-                'override_settings_restore_afterwards', True),
-            "sampler_name": preset_params.get('sampler_name', 'Euler a'),
-            "sampler_index": preset_params.get('sampler_index', 'Euler a'),
-            "script_name": preset_params.get('script_name'),
-            "script_args": preset_params.get('script_args', []),
-            "send_images": preset_params.get('send_images', True),
-            "save_images": preset_params.get('save_images', True),
-            "alwayson_scripts": preset_params.get('alwayson_scripts', {}),
+                "override_settings_restore_afterwards", True
+            ),
+            "sampler_name": preset_params.get("sampler_name", "Euler a"),
+            "sampler_index": preset_params.get("sampler_index", "Euler a"),
+            "script_name": preset_params.get("script_name"),
+            "script_args": preset_params.get("script_args", []),
+            "send_images": preset_params.get("send_images", True),
+            "save_images": preset_params.get("save_images", True),
+            "alwayson_scripts": preset_params.get("alwayson_scripts", {}),
         }
 
         for param in final_params:
             final_params[param] = user_params.get(param, final_params[param])
 
-        final_params['override_settings'] = preset_params.get(
-            'override_settings', {})
+        final_params["override_settings"] = preset_params.get("override_settings", {})
 
         return final_params
 
     @staticmethod
     def img2img_params_process(user_params: dict, user_images: list = None):
-
-        with open(ParameterOperation.get_cfg_path('param_img2img.json'), "r") as file:
+        with open(ParameterOperation.get_cfg_path("param_img2img.json"), "r") as file:
             preset_params: dict = json.load(file)
 
         final_params = {
-            "init_images": [PILImageOperation.b64_img(x) for x in preset_params.get('images', [])],
-            "resize_mode": preset_params.get('resize_mode', 0),
-            "denoising_strength": preset_params.get('denoising_strength', 0.75),
-            "mask_image": PILImageOperation.b64_img(preset_params.get('mask_image')) if preset_params.get('mask_image') is not None else '',
-            "mask_blur": preset_params.get('mask_blur', 4),
-            "inpainting_fill": preset_params.get('inpainting_fill', 0),
-            "inpaint_full_res": preset_params.get('inpaint_full_res', True),
-            "inpaint_full_res_padding": preset_params.get('inpaint_full_res_padding', 0),
-            "inpainting_mask_invert": preset_params.get('inpainting_mask_invert', 0),
-            "initial_noise_multiplier": preset_params.get('initial_noise_multiplier', 1),
-            "prompt": preset_params.get('prompt', ""),
-            "styles": preset_params.get('styles', []),
-            "seed": preset_params.get('seed', -1),
-            "subseed": preset_params.get('subseed', -1),
-            "subseed_strength": preset_params.get('subseed_strength', 0),
-            "seed_resize_from_h": preset_params.get('seed_resize_from_h', 0),
-            "seed_resize_from_w": preset_params.get('seed_resize_from_w', 0),
-            "batch_size": preset_params.get('batch_size', 1),
-            "n_iter": preset_params.get('n_iter', 1),
-            "steps": preset_params.get('steps', 20),
-            "cfg_scale": preset_params.get('cfg_scale', 7.0),
-            "image_cfg_scale": preset_params.get('image_cfg_scale', 1.5),
-            "width": preset_params.get('width', 512),
-            "height": preset_params.get('height', 512),
-            "restore_faces": preset_params.get('restore_faces', False),
-            "tiling": preset_params.get('tiling', False),
-            "do_not_save_samples": preset_params.get('do_not_save_samples', True),
-            "do_not_save_grid": preset_params.get('do_not_save_grid', True),
-            "negative_prompt": preset_params.get('negative_prompt', ""),
-            "eta": preset_params.get('eta', 1.0),
-            "s_churn": preset_params.get('s_churn', 0),
-            "s_tmax": preset_params.get('s_tmax', 0),
-            "s_tmin": preset_params.get('s_tmin', 0),
-            "s_noise": preset_params.get('s_noise', 1),
-            "override_settings": preset_params.get('override_settings', {}),
-            "override_settings_restore_afterwards": preset_params.get('override_settings_restore_afterwards', True),
-            "sampler_name": preset_params.get('sampler_name', 'Euler a'),
-            "sampler_index": preset_params.get('sampler_index', 'Euler a'),
-            "include_init_images": preset_params.get('include_init_images', False),
-            "script_name": preset_params.get('script_name', ''),
-            "script_args": preset_params.get('script_args', []),
-            "send_images": preset_params.get('send_images', True),
-            "save_images": preset_params.get('save_images', False),
-            "alwayson_scripts": preset_params.get('alwayson_scripts', {}),
+            "init_images": preset_params.get("images", []),
+            "resize_mode": preset_params.get("resize_mode", 0),
+            "denoising_strength": preset_params.get("denoising_strength", 0.75),
+            "mask_image": preset_params.get("mask_image")
+            if preset_params.get("mask_image") is not None
+            else "",
+            "mask_blur": preset_params.get("mask_blur", 4),
+            "inpainting_fill": preset_params.get("inpainting_fill", 0),
+            "inpaint_full_res": preset_params.get("inpaint_full_res", True),
+            "inpaint_full_res_padding": preset_params.get(
+                "inpaint_full_res_padding", 0
+            ),
+            "inpainting_mask_invert": preset_params.get("inpainting_mask_invert", 0),
+            "initial_noise_multiplier": preset_params.get(
+                "initial_noise_multiplier", 1
+            ),
+            "prompt": preset_params.get("prompt", ""),
+            "styles": preset_params.get("styles", []),
+            "seed": preset_params.get("seed", -1),
+            "subseed": preset_params.get("subseed", -1),
+            "subseed_strength": preset_params.get("subseed_strength", 0),
+            "seed_resize_from_h": preset_params.get("seed_resize_from_h", 0),
+            "seed_resize_from_w": preset_params.get("seed_resize_from_w", 0),
+            "batch_size": preset_params.get("batch_size", 1),
+            "n_iter": preset_params.get("n_iter", 1),
+            "steps": preset_params.get("steps", 20),
+            "cfg_scale": preset_params.get("cfg_scale", 7.0),
+            "image_cfg_scale": preset_params.get("image_cfg_scale", 1.5),
+            "width": preset_params.get("width", 512),
+            "height": preset_params.get("height", 512),
+            "restore_faces": preset_params.get("restore_faces", False),
+            "tiling": preset_params.get("tiling", False),
+            "do_not_save_samples": preset_params.get("do_not_save_samples", True),
+            "do_not_save_grid": preset_params.get("do_not_save_grid", True),
+            "negative_prompt": preset_params.get("negative_prompt", ""),
+            "eta": preset_params.get("eta", 1.0),
+            "s_churn": preset_params.get("s_churn", 0),
+            "s_tmax": preset_params.get("s_tmax", 0),
+            "s_tmin": preset_params.get("s_tmin", 0),
+            "s_noise": preset_params.get("s_noise", 1),
+            "override_settings": preset_params.get("override_settings", {}),
+            "override_settings_restore_afterwards": preset_params.get(
+                "override_settings_restore_afterwards", True
+            ),
+            "sampler_name": preset_params.get("sampler_name", "Euler a"),
+            "sampler_index": preset_params.get("sampler_index", "Euler a"),
+            "include_init_images": preset_params.get("include_init_images", False),
+            "script_name": preset_params.get("script_name", ""),
+            "script_args": preset_params.get("script_args", []),
+            "send_images": preset_params.get("send_images", True),
+            "save_images": preset_params.get("save_images", False),
+            "alwayson_scripts": preset_params.get("alwayson_scripts", {}),
         }
 
         for param in final_params:
             final_params[param] = user_params.get(param, final_params[param])
 
-        final_params['override_settings'] = preset_params.get(
-            'override_settings', {})
+        final_params["override_settings"] = preset_params.get("override_settings", {})
 
         if user_images:
-            final_params['init_images'] = [
-                PILImageOperation.b64_img(image) for image in user_images
+            final_params["init_images"] = user_images
+
+        return final_params
+
+    @staticmethod
+    def extra_params_process(user_params: dict, user_images: list = None):
+        with open(ParameterOperation.get_cfg_path("param_extra.json"), "r") as file:
+            preset_params: dict = json.load(file)
+
+        filename_generator = TextOptimization.generate_timestamp_file_name()
+
+        final_params = {
+            "imageList": [
+                {"data": img, "name": next(filename_generator)}
+                for img in preset_params.get("image", [])
+            ],
+            "show_extras_results": preset_params.get("show_extras_results", True),
+            "gfpgan_visibility": preset_params.get("gfpgan_visibility", 0),
+            "codeformer_visibility": preset_params.get("codeformer_visibility", 0),
+            "codeformer_weight": preset_params.get("codeformer_weight", 0),
+            "upscaling_resize": preset_params.get("upscaling_resize", 2),
+            "upscaling_resize_w": preset_params.get("upscaling_resize_w", 512),
+            "upscaling_resize_h": preset_params.get("upscaling_resize_h", 512),
+            "upscaling_crop": preset_params.get("upscaling_crop", True),
+            "upscaler_1": preset_params.get("upscaler_1", "None"),
+            "upscaler_2": preset_params.get("upscaler_2", "None"),
+            "extras_upscaler_2_visibility": preset_params.get(
+                "extras_upscaler_2_visibility", 0
+            ),
+            "upscale_first": preset_params.get("upscale_first", False),
+        }
+
+        for param in final_params:
+            final_params[param] = user_params.get(param, final_params[param])
+
+        if user_images:
+            filename_generator = TextOptimization.generate_timestamp_file_name()
+
+            final_params["imageList"] = [
+                {
+                    "data": image,
+                    "name": next(filename_generator),
+                }
+                for image in user_images
             ]
 
         return final_params
 
     @staticmethod
-    def params_to_file(user_params: dict, file_name: str):
+    def tagger_params_process(user_params: dict, user_images: list = None):
+        with open(ParameterOperation.get_cfg_path("param_tagger.json"), "r") as file:
+            preset_params: dict = json.load(file)
 
-        with open(ParameterOperation.get_cfg_path(file_name), 'r') as file:
+        final_params = {
+            "image": preset_params.get("image", []),
+            "model": preset_params.get("model", "wd14-vit-v2-git"),
+            "threshold": preset_params.get("threshold", 0.35),
+        }
+
+        for param in final_params:
+            final_params[param] = user_params.get(param, final_params[param])
+
+        if user_images:
+            final_params["image"] = user_images
+
+        final_params["image"] = final_params["image"][0]
+
+        return final_params
+
+    @staticmethod
+    def params_to_file(user_params: dict, file_name: str):
+        with open(ParameterOperation.get_cfg_path(file_name), "r") as file:
             preset_params = json.load(file)
 
         for param in preset_params:
             """基于preset_params将user_params叠入最终结果"""
-            if param in user_params and param != 'override_settings':
+            if param in user_params and param != "override_settings":
                 preset_params[param] = user_params[param]
 
-        if 'override_settings' in user_params:
-            for ovr_s in preset_params['override_settings']:
+        if "override_settings" in user_params:
+            for ovr_s in preset_params["override_settings"]:
                 """基于preset_params将user_params叠入最终结果"""
-                if ovr_s in user_params['override_settings']:
-                    preset_params['override_settings'][ovr_s] =\
-                        user_params['override_settings'][ovr_s]
+                if ovr_s in user_params["override_settings"]:
+                    preset_params["override_settings"][ovr_s] = user_params[
+                        "override_settings"
+                    ][ovr_s]
 
-        with open(ParameterOperation.get_cfg_path(file_name), 'w') as file:
+        with open(ParameterOperation.get_cfg_path(file_name), "w") as file:
             json.dump(preset_params, file)
 
         return preset_params
 
     @staticmethod
     def fix_string_params(
-            user_params: dict, target_key: str, std_list: list,
-            is_overridesettings: bool = False
+        user_params: dict,
+        target_key: str,
+        std_list: list,
+        is_overridesettings: bool = False,
     ):
-
         if is_overridesettings:
-
-            if target_key in user_params['override_settings']:
-
-                user_params['override_settings'][target_key] =\
-                    TextOptimization.find_similar_str(
-                        std_list,
-                        user_params['override_settings'][target_key])
+            if target_key in user_params["override_settings"]:
+                user_params["override_settings"][
+                    target_key
+                ] = TextOptimization.find_similar_str(
+                    std_list, user_params["override_settings"][target_key]
+                )
 
         else:
-
             if target_key in user_params:
-
-                user_params[target_key] =\
-                    TextOptimization.find_similar_str(
-                        std_list,
-                        user_params[target_key])
+                user_params[target_key] = TextOptimization.find_similar_str(
+                    std_list, user_params[target_key]
+                )
 
         return user_params

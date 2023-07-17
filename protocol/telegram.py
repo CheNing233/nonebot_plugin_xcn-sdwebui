@@ -13,7 +13,7 @@ from nonebot.exception import MatcherException
 
 from nonebot.matcher import Matcher
 
-from ..utils.img import PILImageOperation
+from ..utils.img import ImageOperation
 
 from ..webui.webui_api import WebUI_API
 

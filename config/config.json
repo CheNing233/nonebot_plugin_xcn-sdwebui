@@ -4,11 +4,13 @@
     "enable_friends": [],
     "servers": [
         {
-            "name": "LocalHost",
+            "name": "Localhost",
             "type": "SDWebUI",
             "host": "127.0.0.1",
             "port": 7860,
-            "avalible": false
+            "avalible": false,
+            "select": false,
+            "listen": false
         }
     ],
     "r18": true

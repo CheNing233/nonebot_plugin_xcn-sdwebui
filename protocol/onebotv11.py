@@ -20,7 +20,7 @@ from nonebot.adapters.onebot.v11 import (
 
 # from nonebot.matcher import Matcher
 
-from ..utils.img import PILImageOperation
+from ..utils.img import ImageOperation
 from ..utils.cqcode import CQCodeProcess
 
 from ..webui.webui_api import WebUI_API
@@ -69,7 +69,7 @@ class OneBotV11_Protocol(Default_Protocol):
             return final_cqcode
 
     @staticmethod
-    async def _utils_cqcode_to_pil(cqcode_s: str | dict | list) -> list:
+    async def _utils_cqcode_to_base64(cqcode_s: str | dict | list) -> list:
         """cqcode到url导pil图片"""
 
         import io
@@ -98,13 +98,13 @@ class OneBotV11_Protocol(Default_Protocol):
                 res = None
 
             if res and res.status_code == 200:
-                imgs.append(Image.open(io.BytesIO(res.content)))
+                imgs.append(ImageOperation.bytes_to_base64(res.content))
 
         return imgs
 
     @staticmethod
     async def get_img_reply(
-        bot: Bot, event: Event | GroupMessageEvent | PrivateMessageEvent, *args
+        bot: Bot, event: Event | GroupMessageEvent | PrivateMessageEvent
     ):
         cqcode_img = await OneBotV11_Protocol._utils_search_cqcode(
             bot=bot,
@@ -114,28 +114,26 @@ class OneBotV11_Protocol(Default_Protocol):
         )
 
         if cqcode_img:
-            return await OneBotV11_Protocol._utils_cqcode_to_pil(cqcode_img)
+            return await OneBotV11_Protocol._utils_cqcode_to_base64(cqcode_img)
         else:
             return None
 
     @staticmethod
     async def send_img(
-        bot: Bot, event: Event | GroupMessageEvent | PrivateMessageEvent, *args
+        bot: Bot, event: Event | GroupMessageEvent | PrivateMessageEvent, ret_img
     ):
-        imgs_pack: WebUI_API.WebUIApiResult = args[0]
+        imgs_pack: WebUI_API.WebUIApiResult = ret_img
 
         asyncio.create_task(bot.send(event, Message("画好了，正在从法阵中提取图片喵 ( •̀ ω •́ )y")))
 
-        imgs_path = PILImageOperation.save_imgs(imgs_pack.images, imgs_pack.info)
-
-        for img_path in imgs_path:
+        for img_base64 in imgs_pack.images:
             asyncio.create_task(
                 bot.send(
                     event,
                     Message(
                         MessageSegment.reply(event.message_id)
                         + "喵~ *(੭*ˊᵕˋ)੭* ଘ"
-                        + MessageSegment.image(file="file:///" + img_path)
+                        + MessageSegment.image(file="base64://" + img_base64)
                     ),
                 )
             )
