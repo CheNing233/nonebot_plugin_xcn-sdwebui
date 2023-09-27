@@ -27,7 +27,7 @@
 - [x] `#sdskip`，选中的服务器全部跳过一张，`#sdskip -all`，停止并清空所有任务
 - [x] `#sdfrev`，重载模型进行显存释放，`#sdfrev -all`，全部进行重载模型
 
-- [x] `#sdlst -model|vae|hires|extra|sampler|embed|lora|tagger`，获取上述支持的列表
+- [x] `#sdlst model|vae|hires|extra|sampler|embed|lora|tagger`，获取上述支持的列表
 
 啊，唯独没有`help`指令 ψ(._. )>
 
@@ -70,6 +70,11 @@ Steps: 30, Sampler: Euler a, CFG scale: 7.0, Seed: 1097555186, Size: 1024x768, M
 单击[此处跳转到匹配模式表](#magic-matcher-rules)
 
 ## Usage
+
+```bash
+pip install requests
+pip install requests_toolbelt
+```
 
 1. 使用`git clone`克隆当前项目，并放到你的nonebot2机器人的`src/plugins`处
 2. 在`env.*`中写好飞书的配置，仅对第一个飞书账号生效（~~在写了在写了~~
