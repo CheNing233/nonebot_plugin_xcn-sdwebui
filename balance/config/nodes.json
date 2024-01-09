@@ -1,0 +1,16 @@
+{
+    "nodes": [
+        {
+            "name": "Localhost",
+            "host": "10.180.193.15",
+            "port": 7860,
+            "priority": 6
+        },
+        {
+            "name": "LapTop3050",
+            "host": "127.0.0.1",
+            "port": 7860,
+            "priority": 6
+        }
+    ]
+}
