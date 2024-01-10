@@ -53,6 +53,7 @@ class SDWebUI_API:
         use_https: bool = False,
         use_WebUIApiResult: bool = False,
         timeout: int = None,
+        allow_null_response: bool = False,
     ) -> dict | str:
         if not use_https:
             url = f"http://{host}:{port}{api}"
@@ -71,10 +72,7 @@ class SDWebUI_API:
                 response_text = await response.text()
                 raise RuntimeError(f"{response.status}, {response_text}")
 
-            if (
-                response.content is None
-                or str(response.content._buffer) == "deque([b'null'])"
-            ):
+            if response.content is None or allow_null_response:
                 code = response.status
                 response.release()
                 return StdTransfer.ApiResult(f"{code} but content is none", f"{url}")
@@ -187,6 +185,7 @@ class SDWebUI_API:
             json={},
             use_get=False,
             use_https=False,
+            allow_null_response=True,
         )
 
         if result.result is None:
@@ -221,6 +220,19 @@ class SDWebUI_API:
     @staticmethod
     @StdTransfer.AsyncExceptionHandler
     async def get_or_match_vae(host, port, **kwargs):
+        result: StdTransfer.ApiResult = await SDWebUI_API._utils_req(
+            host,
+            port,
+            "/sdapi/v1/refresh-vae",
+            json={},
+            use_get=False,
+            use_https=False,
+            allow_null_response=True,
+        )
+
+        if result.result is None:
+            raise RuntimeError(f"{result.info}")
+
         result: StdTransfer.ApiResult = await SDWebUI_API._utils_req(
             host,
             port,
@@ -361,7 +373,7 @@ class SDWebUI_API:
     @StdTransfer.AsyncExceptionHandler
     async def get_or_match_loras(host, port, **kwargs):
         result: StdTransfer.ApiResult = await SDWebUI_API._utils_req(
-            host, port, "/sdapi/v1/refresh-loras", {}
+            host, port, "/sdapi/v1/refresh-loras", {}, allow_null_response=True
         )
 
         if result.result is None:

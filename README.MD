@@ -11,23 +11,23 @@
 - [x] 简单的优先级任务队列和负载均衡（不稳定）
 
 - [x] `#sd`，查看当前所有服务器状态
-- [x] `#sd -h`，查看该命令的提示
+- [x] `#sd -h`，其他子命令可以使用`-h`查看提示
 
-- [x] `#sddraw`，接魔法、回复图片进行画图
+- [x] `#sddraw`，接提示词进行`txt2img`，回复图片可以进行`img2img`
 - [x] `#sdextra`，图片放大
 
-- [x] `#sdtxt`，修改文生图配置
-- [x] `#sdimg`，修改图生图配置
+- [x] `#sdtxt`，修改`txt2img`配置
+- [x] `#sdimg`，修改`img2img`配置
 - [x] `#sdext`，修改图片放大配置
-- [x] `#sdtagger`，修改tagger插件配置
+- [x] `#sdtagger`，修改tagger反推插件配置
 
 - [x] `#sdinf`，获取图片参数，`#sdinf -tagger`，额外调用tagger插件反推（自动卸载反推模型）
 
 - [x] `#sdskip`，选中的服务器全部跳过一张，`#sdskip -all`，停止并清空所有任务
 - [x] `#sdfrev`，重载模型进行显存释放，`#sdfrev -all`，全部进行重载模型
 
-- [x] `#sdlst model|vae|hires|extra|sampler|embed|lora|tagger`，获取上述支持的列表
-- [x] `#sdlst -h`，查看该命令的提示
+- [x] `#sdlst -model -vae -hires ...`，获取可用的列表（比如获取可用的model和sampler等）
+- [x] `#sdlst -h`，更多选项可以使用`-h`查看提示
 
 
 ### 待实现功能
@@ -70,16 +70,30 @@ Steps: 30, Sampler: Euler a, CFG scale: 7.0, Seed: 1097555186, Size: 1024x768, M
 
 ## Usage
 
+### 配置插件
+
+- 使用`git clone`克隆当前项目，并放到你的nonebot2机器人的`src/plugins`处
+- 配置好`pyproject.toml`和`env.*`，配置好飞书账号
+
+### 安装依赖
+
 ```bash
-pip install requests
-pip install requests_toolbelt
+# 可能你需要启动你机器人的虚拟环境才能安装
+. ./venv/bin/activate
+
+# 使用环境内pip安装依赖
+pip install requests requests_toolbelt tabulate aiohttp
 ```
 
-1. 使用`git clone`克隆当前项目，并放到你的nonebot2机器人的`src/plugins`处
-2. 在`env.*`中写好飞书的配置，仅对第一个飞书账号生效（~~在写了在写了~~
-3. 在`pyproject.toml`或其他地方配置加载该插件
-4. 修改插件目录里的`config/config_webui.json`中的`servers`字段，将你的SDWebUI填进去
-5. 启动后使用`#sd`和`#sd -ping`测试是否正常连接到所有服务器
+如果你的飞书适配器插件过旧，可能还需要进行更新
+
+### 启动、测试及修改服务器
+
+- 启动成功后，输入`#sd -h`查看帮助，若有输出则插件启动成功
+- 使用`#sd add -name 名字 -host xxx.xxx.xxx.xxx`添加第一个服务器
+- 使用`#sd -delete 名字`删除对应名字的服务器
+- 使用`#sd`查看所有服务器状态
+- 可以开心画画了
 
 ## Problems and Defects
 

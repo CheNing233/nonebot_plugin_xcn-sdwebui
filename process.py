@@ -540,14 +540,16 @@ class Process:
                 ParameterOperation.txtimg_matcher.override_settings_group,
             )
 
-            """
-            修正str类型参数
-            """
+            # 修正str类型参数
 
+            # normal_settings
             user_sampler = params.get("sampler_name", None)
             user_upscaler = params.get("hr_upscaler", None)
-            user_vae = params.get("sd_vae", None)
-            user_model = params.get("sd_model_checkpoint", None)
+
+            # override_settings
+            user_override_settings: dict = params.get("override_settings", {})
+            user_vae = user_override_settings.get("sd_vae", None)
+            user_model = user_override_settings.get("sd_model_checkpoint", None)
 
             tasks = [
                 asyncio.ensure_future(
@@ -578,6 +580,7 @@ class Process:
             ]
 
             done, pending = await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)
+            done = list(done)
 
             result_list = []
 
@@ -586,7 +589,7 @@ class Process:
                     result_list = []
                     index = done.index(tasks[i])
 
-                    for node_result in done[index]:
+                    for node_result in done[index].result():
                         check, _ = self.check_result(node_result)
 
                         if check is False:
@@ -608,15 +611,17 @@ class Process:
                             upscalers, user_upscaler
                         )
                     if i == 3:
-                        params["sd_vae"] = TextOptimization.find_similar_str(
-                            result_list, user_vae
-                        )
+                        params["override_settings"][
+                            "sd_vae"
+                        ] = TextOptimization.find_similar_str(result_list, user_vae)
                     if i == 4:
-                        params[
+                        params["override_settings"][
                             "sd_model_checkpoint"
                         ] = TextOptimization.find_similar_str(result_list, user_model)
                 except:
                     continue
+
+            # 结束修正
 
             params_final: dict = ParameterOperation.params_to_file(
                 params, "param_txt2img.json"
@@ -644,14 +649,16 @@ class Process:
                 ParameterOperation.txtimg_matcher.override_settings_group,
             )
 
-            """
-            修正str类型参数
-            """
+            # 修正str类型参数
 
+            # normal_settings
             user_sampler = params.get("sampler_name", None)
             user_upscaler = params.get("hr_upscaler", None)
-            user_vae = params.get("sd_vae", None)
-            user_model = params.get("sd_model_checkpoint", None)
+
+            # override_settings
+            user_override_settings: dict = params.get("override_settings", {})
+            user_vae = user_override_settings.get("sd_vae", None)
+            user_model = user_override_settings.get("sd_model_checkpoint", None)
 
             tasks = [
                 asyncio.ensure_future(
@@ -682,6 +689,7 @@ class Process:
             ]
 
             done, pending = await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)
+            done = list(done)
 
             result_list = []
 
@@ -690,7 +698,7 @@ class Process:
                     result_list = []
                     index = done.index(tasks[i])
 
-                    for node_result in done[index]:
+                    for node_result in done[index].result():
                         check, _ = self.check_result(node_result)
 
                         if check is False:
@@ -712,15 +720,17 @@ class Process:
                             upscalers, user_upscaler
                         )
                     if i == 3:
-                        params["sd_vae"] = TextOptimization.find_similar_str(
-                            result_list, user_vae
-                        )
+                        params["override_settings"][
+                            "sd_vae"
+                        ] = TextOptimization.find_similar_str(result_list, user_vae)
                     if i == 4:
-                        params[
+                        params["override_settings"][
                             "sd_model_checkpoint"
                         ] = TextOptimization.find_similar_str(result_list, user_model)
                 except:
                     continue
+
+            # 结束修正
 
             params_final: dict = ParameterOperation.params_to_file(
                 params, "param_img2img.json"
@@ -748,9 +758,7 @@ class Process:
                 [],
             )
 
-            """
-            修正str类型参数
-            """
+            # 修正str类型参数
 
             user_extraupscaler_1 = params.get("upscaler_1", None)
             user_extraupscaler_2 = params.get("upscaler_2", None)
@@ -764,6 +772,7 @@ class Process:
             ]
 
             done, pending = await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)
+            done = list(done)
 
             result_list = []
 
@@ -772,7 +781,7 @@ class Process:
                     result_list = []
                     index = done.index(tasks[i])
 
-                    for node_result in done[index]:
+                    for node_result in done[index].result():
                         check, _ = self.check_result(node_result)
 
                         if check is False:
@@ -838,6 +847,7 @@ class Process:
             ]
 
             done, pending = await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)
+            done = list(done)
 
             result_list = []
 
@@ -846,7 +856,7 @@ class Process:
                     result_list = []
                     index = done.index(tasks[i])
 
-                    for node_result in done[index]:
+                    for node_result in done[index].result():
                         check, _ = self.check_result(node_result)
 
                         if check is False:
